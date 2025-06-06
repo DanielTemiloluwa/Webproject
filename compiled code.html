@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .quiz-container {
+      background: white;
+      padding: 20px 40px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .btn-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #0a74da;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #005bb5;
+    }
+
+    .hide {
+      display: none;
+    }
+
+    .correct {
+      background-color: green !important;
+    }
+
+    .wrong {
+      background-color: red !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <h1>Quiz Game</h1>
+    <div id="question-container">
+      <div id="question">Question goes here</div>
+      <div id="answer-buttons" class="btn-grid"></div>
+    </div>
+    <button id="next-btn">Next</button>
+    <div id="score-container" class="hide">
+      <h2>Your Score: <span id="score"></span></h2>
+      <button onclick="startGame()">Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      { question: "What is the capital of France?", answers: [{ text: "Paris", correct: true }, { text: "London", correct: false }, { text: "Rome", correct: false }, { text: "Berlin", correct: false }] },
+      { question: "Which language is used for web apps?", answers: [{ text: "PHP", correct: true }, { text: "Python", correct: true }, { text: "JavaScript", correct: true }, { text: "All of the above", correct: true }] },
+      { question: "What year did HTML5 launch?", answers: [{ text: "2008", correct: false }, { text: "2010", correct: true }, { text: "2012", correct: false }, { text: "2015", correct: false }] },
+      { question: "Who is the father of computers?", answers: [{ text: "Charles Babbage", correct: true }, { text: "Alan Turing", correct: false }, { text: "Tim Berners-Lee", correct: false }, { text: "Bill Gates", correct: false }] },
+      { question: "Which tag is used to create a hyperlink in HTML?", answers: [{ text: "<a>", correct: true }, { text: "<link>", correct: false }, { text: "<href>", correct: false }, { text: "<src>", correct: false }] },
+      { question: "CSS stands for?", answers: [{ text: "Cascading Style Sheets", correct: true }, { text: "Computer Style Sheet", correct: false }, { text: "Creative Style System", correct: false }, { text: "Colorful Style Syntax", correct: false }] },
+      { question: "What is the output of 2 + '2' in JavaScript?", answers: [{ text: "22", correct: true }, { text: "4", correct: false }, { text: "NaN", correct: false }, { text: "Error", correct: false }] },
+      { question: "What does DOM stand for?", answers: [{ text: "Document Object Model", correct: true }, { text: "Display Object Management", correct: false }, { text: "Digital Object Model", correct: false }, { text: "Desktop Object Model", correct: false }] },
+      { question: "Which method adds an element at the end of an array?", answers: [{ text: "push()", correct: true }, { text: "pop()", correct: false }, { text: "shift()", correct: false }, { text: "unshift()", correct: false }] },
+      { question: "HTML is a ___ language.", answers: [{ text: "markup", correct: true }, { text: "programming", correct: false }, { text: "scripting", correct: false }, { text: "query", correct: false }] },
+      { question: "Which company developed JavaScript?", answers: [{ text: "Netscape", correct: true }, { text: "Microsoft", correct: false }, { text: "Sun Microsystems", correct: false }, { text: "Oracle", correct: false }] },
+      { question: "What symbol is used for comments in CSS?", answers: [{ text: "/* comment */", correct: true }, { text: "// comment", correct: false }, { text: "<!-- comment -->", correct: false }, { text: "# comment", correct: false }] },
+      { question: "Which of these is a JavaScript framework?", answers: [{ text: "React", correct: true }, { text: "Laravel", correct: false }, { text: "Django", correct: false }, { text: "Bootstrap", correct: false }] },
+      { question: "What does SQL stand for?", answers: [{ text: "Structured Query Language", correct: true }, { text: "Simple Query List", correct: false }, { text: "Standard Question Language", correct: false }, { text: "Server Query Language", correct: false }] },
+      { question: "Which of these is a valid Python variable name?", answers: [{ text: "my_var", correct: true }, { text: "2var", correct: false }, { text: "my-var", correct: false }, { text: "my var", correct: false }] },
+      { question: "Which HTML tag is used to define an image?", answers: [{ text: "<img>", correct: true }, { text: "<image>", correct: false }, { text: "<pic>", correct: false }, { text: "<src>", correct: false }] },
+      { question: "What does API stand for?", answers: [{ text: "Application Programming Interface", correct: true }, { text: "Application Programming Integration", correct: false }, { text: "Advanced Processing Interface", correct: false }, { text: "Applied Program Input", correct: false }] },
+      { question: "Which function converts JSON to an object in JS?", answers: [{ text: "JSON.parse()", correct: true }, { text: "JSON.stringify()", correct: false }, { text: "JSON.objectify()", correct: false }, { text: "JSON.convert()", correct: false }] },
+      { question: "Which planet is known as the Red Planet?", answers: [{ text: "Mars", correct: true }, { text: "Jupiter", correct: false }, { text: "Venus", correct: false }, { text: "Saturn", correct: false }] },
+      { question: "Which gas do plants absorb?", answers: [{ text: "Carbon Dioxide", correct: true }, { text: "Oxygen", correct: false }, { text: "Nitrogen", correct: false }, { text: "Hydrogen", correct: false }] },
+      { question: "What is 5 squared?", answers: [{ text: "25", correct: true }, { text: "10", correct: false }, { text: "15", correct: false }, { text: "5", correct: false }] },
+      { question: "Which country is called the Land of the Rising Sun?", answers: [{ text: "Japan", correct: true }, { text: "China", correct: false }, { text: "India", correct: false }, { text: "South Korea", correct: false }] },
+      { question: "What is the largest ocean?", answers: [{ text: "Pacific Ocean", correct: true }, { text: "Atlantic Ocean", correct: false }, { text: "Indian Ocean", correct: false }, { text: "Arctic Ocean", correct: false }] },
+      { question: "Which is the longest river in the world?", answers: [{ text: "Nile", correct: true }, { text: "Amazon", correct: false }, { text: "Yangtze", correct: false }, { text: "Mississippi", correct: false }] },
+      { question: "What is the boiling point of water?", answers: [{ text: "100°C", correct: true }, { text: "90°C", correct: false }, { text: "110°C", correct: false }, { text: "80°C", correct: false }] },
+      { question: "Which country hosted the 2022 FIFA World Cup?", answers: [{ text: "Qatar", correct: true }, { text: "Russia", correct: false }, { text: "Brazil", correct: false }, { text: "France", correct: false }] },
+      { question: "Who wrote 'Romeo and Juliet'?", answers: [{ text: "William Shakespeare", correct: true }, { text: "Charles Dickens", correct: false }, { text: "Jane Austen", correct: false }, { text: "Mark Twain", correct: false }] },
+      { question: "Which instrument has keys, pedals, and strings?", answers: [{ text: "Piano", correct: true }, { text: "Guitar", correct: false }, { text: "Violin", correct: false }, { text: "Flute", correct: false }] },
+      { question: "What color do you get when you mix red and white?", answers: [{ text: "Pink", correct: true }, { text: "Purple", correct: false }, { text: "Orange", correct: false }, { text: "Brown", correct: false }] },
+      { question: "Which animal is known as the King of the Jungle?", answers: [{ text: "Lion", correct: true }, { text: "Tiger", correct: false }, { text: "Elephant", correct: false }, { text: "Bear", correct: false }] }
+    ];
+
+    const questionElement = document.getElementById("question");
+    const answerButtons = document.getElementById("answer-buttons");
+    const nextButton = document.getElementById("next-btn");
+    const scoreContainer = document.getElementById("score-container");
+    const scoreDisplay = document.getElementById("score");
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    function startGame() {
+      currentQuestionIndex = 0;
+      score = 0;
+      scoreContainer.classList.add("hide");
+      nextButton.innerText = "Next";
+      showQuestion();
+    }
+
+    function showQuestion() {
+      resetState();
+      const currentQuestion = questions[currentQuestionIndex];
+      questionElement.innerText = currentQuestion.question;
+
+      currentQuestion.answers.forEach(answer => {
+        const button = document.createElement("button");
+        button.innerText = answer.text;
+        button.classList.add("btn");
+        if (answer.correct) {
+          button.dataset.correct = answer.correct;
+        }
+        button.addEventListener("click", selectAnswer);
+        answerButtons.appendChild(button);
+      });
+    }
+
+    function resetState() {
+      nextButton.classList.add("hide");
+      answerButtons.innerHTML = "";
+    }
+
+    function selectAnswer(e) {
+      const selectedBtn = e.target;
+      const correct = selectedBtn.dataset.correct === "true";
+
+      if (correct) {
+        score++;
+        selectedBtn.classList.add("correct");
+      } else {
+        selectedBtn.classList.add("wrong");
+      }
+
+      Array.from(answerButtons.children).forEach(button => {
+        button.disabled = true;
+        if (button.dataset.correct === "true") {
+          button.classList.add("correct");
+        }
+      });
+
+      nextButton.classList.remove("hide");
+    }
+
+    nextButton.addEventListener("click", () => {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        showQuestion();
+      } else {
+        showScore();
+      }
+    });
+
+    function showScore() {
+      resetState();
+      questionElement.innerText = "";
+      scoreContainer.classList.remove("hide");
+      scoreDisplay.innerText = `${score} / ${questions.length}`;
+      nextButton.classList.add("hide");
+    }
+
+    startGame();
+  </script>
+</body>
+</html>
